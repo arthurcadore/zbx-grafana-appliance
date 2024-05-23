@@ -88,11 +88,6 @@ services:
           - zabbix-web-nginx-pgsql-alpine
       zbx_net_frontend:
         ipv4_address: 172.16.238.102
-      ingress_gateway:
-        aliases:
-          - zabbix-web-nginx-pgsql
-          - zabbix-web-nginx-alpine-pgsql
-          - zabbix-web-nginx-pgsql-alpine
     stop_grace_period: 10s
     labels:
       com.zabbix.description: "Zabbix frontend on Nginx web-server with PostgreSQL database support"
@@ -168,19 +163,15 @@ services:
           - grafana-server
       zbx_net_frontend:
         ipv4_address: 172.16.238.105
-      ingress_gateway:
-        aliases:
-          - grafana-server
-    restart: always # Faz com que o container seja reiniciado automaticamente em caso de falha
+    restart: always
     ports:
-      - "3000:3000" # Mapeia a porta 3000 do host para a porta 3000 do container (interface web do Grafana)
+      - "3000:3000"
     user: "1000:1000"
     volumes:
-      - "grafanadata:/var/lib/grafana" # Mapeia o diretório /var/lib/grafana do host para dentro do container
+      - "grafanadata:/var/lib/grafana"
       - "grafanaetc:/etc/grafana"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=painelgrafana@intelbras123
-      - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
+    env_file:
+      - ./env_vars/.env_grafana
 
 networks:
   zbx_net_frontend:
@@ -200,9 +191,6 @@ networks:
       driver: default
       config:
         - subnet: 172.16.239.0/24
-  ingress_gateway:
-    external: true
-    name: ingress_gateway
 
 secrets:
   POSTGRES_USER:
