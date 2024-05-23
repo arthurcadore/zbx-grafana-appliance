@@ -1,84 +1,137 @@
-# Zabbix Server Compose
+# Zabbix / Grafana Docker Appliance
 
-![logo](https://assets.zabbix.com/img/logo/zabbix_logo_500x131.png)
+Prerequisites
+Before you begin, ensure you have the following packages installed on your system:
 
+- Git version 2.34.1
+- Docker version 24.0.6, build ed223bc
+- Docker Compose version v2.21.0
 
-This is a fork of the official Zabbix Server Repo with a few changes for a production setup:
+---
+### Getting Started:
 
-__Changes__
+First, copy the line below and paste on your prompt to clone the repository:
 
-1. Removed everything I don't need - this file only sets up the Zabbix Server with a Postgres backend, the Zabbix Server Dashboard frontend using NGINX and an Zabbix Agent 2 to monitor the server itself.
-2. Added container names, container restart policies and fixed IP addresses (The Zabbix Agent Container IP is set to `172.16.239.106` - MAKE SURE to change the agent address from default `127.0.0.1` to `172.16.239`.106 inside the Server Dashboard! see below).
-3. Added an additional external network ingress_gateway that will be used by the system ingress to direct traffic to Zabbix. The web frontend container opens both port 8080 and 8443 to debug the initial setup (SSL will be handled by the Ingress and is not configured on port 8443). The ports can be commented out later. Make sure to either remove the `ingress_gateway` from the configuration file or add it manually `docker network create ingress_gateway` before starting the containers.
-4. __OPTIONAL__: Added Grafana dashboard. See [Blog Entry for details](https://mpolinowski.github.io/devnotes/2022-01-15--zabbix-grafana-dashboard). The Grafana container is commented out in the docker-compose file - add as required.
+```
+git clone https://github.com/arthurcadore/zbx-grafana-appliance
+```
+If you don't have installed the package Git yet, do it before try to clone the respository!
 
+Navigate to the project directory:
 
-> This is the updated setup guide for __Zabbix Server v6 LTS__ via docker-compose. For a setup guide for the __Version 5.4__ check the [5.4 README](/README_v5.4.md). Also note that the __docker_compose.yml__ file and __env_vars/.env_agent__ had to be modified for version 6.
-
-<!-- TOC -->
-
-- [Zabbix Server Compose](#zabbix-server-compose)
-  - [Basic Setup](#basic-setup)
-    - [Clone the Repository](#clone-the-repository)
-    - [Go Dark](#go-dark)
-    - [Change the Admin Login](#change-the-admin-login)
-    - [Connect the Zabbix Agent](#connect-the-zabbix-agent)
-
-<!-- /TOC -->
-
-## Basic Setup
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/mpolinowski/zabbix-server-compose.git
+```
+cd ./zbx-grafana-appliance
 ```
 
-### Go Dark
+If you don't have Docker (and Docker-compose) installed on your system yet, it can be installed by run the following commands (Script for Ubuntu 22.04): 
 
-![Zabbix Server](./snapshots/Zabbix-Server_01.png)
-
-
-### Change the Admin Login
-
-Visit the Zabbix Frontend on Port `8080` and login with:
-
-
-> Username: __Admin__
-> Password: __zabbix__
-
-
-Enter the __User Configuration__ and change the `Admin` login:
-
-
-![Zabbix Server](./snapshots/Zabbix-Server_02.png)
-
-
-### Connect the Zabbix Agent
-
-
-The Zabbix Server expects an agent to be running on `localhost`. Since we are inside the Docker virtual network we need to change the default setting:
-
-
-![Zabbix Server](./snapshots/Zabbix-Server_03.png)
-
-
-Go to __Configuration__ / __Hosts__ and change the Zabbix Agent IP / DDNS address according to the configuration you defined inside the `docker-compose.yml` file:
-
-
-```yml
-networks:
-      zbx_net_backend:
-        ipv4_address: 172.16.239.103
-        aliases:
-          - zabbix-agent
+```
+./docker/installDocker.sh
 ```
 
+**If you had to install docker, please remember to reboot you machine to grant user privileges for docker application.** 
 
-![Zabbix Server](./snapshots/Zabbix-Server_04.png)
+In sequence, configure the environment variables for the application container, you can do this by edditing the files in the `.env_vars`: 
+
+```
+.POSTGRES_USER -> Change database User
+.POSTGRES_PASSWORD -> Change database Password
+.env_grafana -> Change Grafana Default 'Admin' password
+```
+
+### Start Application's Container: 
+Run the command below to start docker-compose file: 
+
+```
+docker compose up & 
+```
+
+The "&" character creates a process id for the command inputed in, with means that the container will not stop when you close the terminal. 
+
+---
+
+### Access Application:
+
+Once the container is up and running, you can access the applications web interface at the following addresses: 
+
+- Zabbix Web Interface: 
+
+```
+http://localhost:8080/index.php
+```
+
+- Zabbix Server/Agent Interfaces: 
+
+```
+localhost:10050
+localhost:10051
+```
+
+- Grafana: 
+
+```
+http://localhost:3000/login
+```
+
+- Database: 
+
+```
+pgsql://localhost:5432
+```
+
+```
+docker exec -it sig-capacita bash
+```
+
+--- 
+
+### Configuring Grafana Dashboard: 
+
+- First, access the Grafana web interface at `3000/TCP` port:
+
+![accessGrafana](./pictures/GrafanaAccess.png)
+
+The default user is "admin", the password was configured in `.env_grafana` file. 
+
+- In the `plugin` section, enable the "Zabbix" plugin for use it. 
+
+- In sequence, create a new `data-source` using "Zabbix Data Source", in the configuration of it, insert the Zabbix-Web container API access: 
+
+![grafanaAPI](./pictures/GrafanaAPI.png)
+
+On the "Zabbix Connection" parameters, input the user and password of zabbix interface access, which is the following as default: 
+
+```
+User: Admin
+Password: zabbix
+```
+
+- Finally, use the `save and test` button to verify if the parameters configurated have allowed the Grafana to consult the Zabbix API, the zabbix will show the following log if the connection was successfully: 
+
+![grafanaSuccess](./pictures/Success.png)
+
+### Accessing the Zabbix Interface: 
+
+To access the Zabbix web interface, use the `8080/TCP` port, with the following credentials: 
+
+```
+User: Admin
+Password: zabbix
+```
+
+![zabbixSuccess](./pictures/zabbix.png)
+
+--- 
+### Stop Container: 
+To stop the running container, use the following command:
+
+```
+docker-compose down
+```
+
+This command stops and removes the containers, networks, defined in the docker-compose.yml file.
+
+--- 
 
 
-If everything worked the agent should show up after "a few Minutes":
 
-
-![Zabbix Server](./snapshots/Zabbix-Server_05.png)

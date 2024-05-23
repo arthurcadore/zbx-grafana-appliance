@@ -55,7 +55,6 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
-      - "8443:8443"
     links:
       - postgres-server:postgres-server
       - zabbix-server:zabbix-server
@@ -144,6 +143,8 @@ services:
     secrets:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
+    ports:
+      - "5432:5432"
     stop_grace_period: 1m
     networks:
       zbx_net_backend:
