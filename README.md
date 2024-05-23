@@ -4,6 +4,8 @@
   <img src="pictures/main.png" align="center">
 </p>
 
+**This repository structure a deployment of Zabbix Components (6.0.28), Grafana (9.3.2) and Database (PostgreSQL 13.5) service for network monitoring**
+
 Prerequisites
 Before you begin, ensure you have the following packages installed on your system:
 
