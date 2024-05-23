@@ -161,16 +161,16 @@ services:
   grafana-server:
     container_name: grafana-server
     image: grafana/grafana:9.3.2-ubuntu
-     networks:
-       zbx_net_backend:
-         ipv4_address: 172.16.239.105
-         aliases:
-           - grafana-server
-       zbx_net_frontend:
-         ipv4_address: 172.16.238.105
-       ingress_gateway:
-         aliases:
-           - grafana-server
+    networks:
+      zbx_net_backend:
+        ipv4_address: 172.16.239.105
+        aliases:
+          - grafana-server
+      zbx_net_frontend:
+        ipv4_address: 172.16.238.105
+      ingress_gateway:
+        aliases:
+          - grafana-server
     restart: always # Faz com que o container seja reiniciado automaticamente em caso de falha
     ports:
       - "3000:3000" # Mapeia a porta 3000 do host para a porta 3000 do container (interface web do Grafana)
@@ -208,6 +208,7 @@ secrets:
   POSTGRES_USER:
     file: ./env_vars/.POSTGRES_USER
   POSTGRES_PASSWORD:
+    file: ./env_vars/.POSTGRES_PASSWORD
 
 volumes:
   grafanadata:
