@@ -79,10 +79,6 @@ http://localhost:3000/login
 pgsql://localhost:5432
 ```
 
-```
-docker exec -it sig-capacita bash
-```
-
 --- 
 
 ### Configuring Grafana Dashboard: 
@@ -108,7 +104,9 @@ Password: zabbix
 
 - Finally, use the `save and test` button to verify if the parameters configurated have allowed the Grafana to consult the Zabbix API, the zabbix will show the following log if the connection was successfully: 
 
-![grafanaSuccess](./pictures/Success.png)
+![grafanaSuccess](./pictures/GrafanaSuccess.png)
+
+--- 
 
 ### Accessing the Zabbix Interface: 
 
