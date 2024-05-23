@@ -1,5 +1,9 @@
 # Zabbix / Grafana Docker Appliance
 
+<p align="center">
+  <img src="pictures/main.png" align="center">
+</p>
+
 Prerequisites
 Before you begin, ensure you have the following packages installed on your system:
 
@@ -129,7 +133,14 @@ docker-compose down
 
 This command stops and removes the containers, networks, defined in the docker-compose.yml file.
 
---- 
 
+
+## References: 
+
+- [Docker Compose For Zabbix (mpolinowski)](https://github.com/mpolinowski/zabbix-server-compose)
+
+- [Zabbix Docker Containers](https://hub.docker.com/u/zabbix)
+
+- [Instalation for Containers](https://www.zabbix.com/documentation/current/en/manual/installation/containers)
 
 
